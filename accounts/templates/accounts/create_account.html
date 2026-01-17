@@ -1,0 +1,365 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Create New Account - SecureBank{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-white fw-bold mb-2">
+            <i class="fas fa-plus-circle"></i> Create New Bank Account
+        </h1>
+        <p class="text-white-50">Choose the account type that best suits your needs</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Account Type Comparison -->
+        <div class="row g-4 mb-4">
+            <!-- Savings Account Card -->
+            <div class="col-md-6">
+                <div class="card h-100 border-success" style="border-width: 3px;">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box success mx-auto mb-3">
+                            <i class="fas fa-piggy-bank"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">Savings Account</h3>
+                        <p class="text-muted mb-4">Perfect for personal savings and earning interest on your balance</p>
+                        
+                        <div class="text-start mb-4">
+                            <h6 class="fw-bold mb-3">Features:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>4% Annual Interest</strong> - Earn on your savings
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>₹500 Minimum Balance</strong> - Low requirement
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>₹50,000 Daily Withdrawal</strong> - Generous limit
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>No Monthly Fees</strong> - Free maintenance
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>Interest Calculated Monthly</strong>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="alert alert-success">
+                            <small><strong>Best For:</strong> Personal savings, Emergency funds, Long-term goals</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Current Account Card -->
+            <div class="col-md-6">
+                <div class="card h-100 border-primary" style="border-width: 3px;">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box primary mx-auto mb-3">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">Current Account</h3>
+                        <p class="text-muted mb-4">Ideal for businesses and frequent transactions</p>
+                        
+                        <div class="text-start mb-4">
+                            <h6 class="fw-bold mb-3">Features:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-primary me-2"></i>
+                                    <strong>₹10,000 Overdraft</strong> - Flexible credit
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-primary me-2"></i>
+                                    <strong>₹1,000 Minimum Balance</strong>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-primary me-2"></i>
+                                    <strong>Unlimited Transactions</strong> - No limits
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-info-circle text-warning me-2"></i>
+                                    <strong>₹10 Transaction Fee</strong> - Per withdrawal
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-primary me-2"></i>
+                                    <strong>Negative Balance Allowed</strong> - Up to limit
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="alert alert-primary">
+                            <small><strong>Best For:</strong> Business operations, Frequent transactions, Cash flow management</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Account Creation Form -->
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <i class="fas fa-file-alt me-2"></i>Account Creation Form
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Account Type Selection -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-list me-2"></i>Select Account Type
+                        </label>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card h-100" id="savings-card" style="cursor: pointer; transition: all 0.3s;">
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input 
+                                                class="form-check-input" 
+                                                type="radio" 
+                                                name="account_type" 
+                                                id="savings" 
+                                                value="savings"
+                                                required
+                                            >
+                                            <label class="form-check-label w-100" for="savings" style="cursor: pointer;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-box success me-3">
+                                                        <i class="fas fa-piggy-bank"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="mb-1 fw-bold">Savings Account</h5>
+                                                        <small class="text-muted">Min Balance: ₹500, Interest: 4%</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card h-100" id="current-card" style="cursor: pointer; transition: all 0.3s;">
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input 
+                                                class="form-check-input" 
+                                                type="radio" 
+                                                name="account_type" 
+                                                id="current" 
+                                                value="current"
+                                                required
+                                            >
+                                            <label class="form-check-label w-100" for="current" style="cursor: pointer;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-box primary me-3">
+                                                        <i class="fas fa-briefcase"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="mb-1 fw-bold">Current Account</h5>
+                                                        <small class="text-muted">Min Balance: ₹1000, Overdraft: ₹10000</small>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if form.account_type.errors %}
+                            <div class="text-danger small mt-2">{{ form.account_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Initial Deposit -->
+                    <div class="mb-4">
+                        <label for="initial_deposit" class="form-label fw-bold">
+                            <i class="fas fa-money-bill-wave me-2"></i>Initial Deposit Amount
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">₹</span>
+                            <input 
+                                type="number" 
+                                class="form-control" 
+                                id="initial_deposit" 
+                                name="initial_deposit" 
+                                placeholder="Enter initial deposit amount"
+                                step="0.01"
+                                min="0"
+                                required
+                            >
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Minimum: ₹500 for Savings, ₹1000 for Current
+                        </small>
+                        
+                        {% if form.initial_deposit.errors %}
+                            <div class="text-danger small mt-2">{{ form.initial_deposit.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Terms and Conditions -->
+                    <div class="mb-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-3">
+                                    <i class="fas fa-file-contract me-2"></i>Terms & Conditions
+                                </h6>
+                                <ul class="small mb-0">
+                                    <li class="mb-2">Account number will be auto-generated upon creation</li>
+                                    <li class="mb-2">You can create multiple accounts of different types</li>
+                                    <li class="mb-2">Initial deposit will be credited immediately</li>
+                                    <li class="mb-2">Minimum balance must be maintained at all times</li>
+                                    <li class="mb-2">All transactions are recorded and can be viewed anytime</li>
+                                    <li>Account can be managed from your dashboard</li>
+                                </ul>
+                                
+                                <div class="form-check mt-3">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="terms" 
+                                        required
+                                    >
+                                    <label class="form-check-label" for="terms">
+                                        I agree to the terms and conditions
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>Create Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Help Section -->
+        <div class="card mt-4 border-info">
+            <div class="card-body">
+                <h6 class="fw-bold text-info mb-3">
+                    <i class="fas fa-question-circle me-2"></i>Need Help?
+                </h6>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-piggy-bank text-success me-2 mt-1"></i>
+                            <div>
+                                <strong>Savings Account</strong>
+                                <p class="small text-muted mb-0">Best for regular savings with interest earnings</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-briefcase text-primary me-2 mt-1"></i>
+                            <div>
+                                <strong>Current Account</strong>
+                                <p class="small text-muted mb-0">Designed for business and frequent transactions</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-headset text-warning me-2 mt-1"></i>
+                            <div>
+                                <strong>24/7 Support</strong>
+                                <p class="small text-muted mb-0">Contact us anytime for assistance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add some interactivity -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const savingsRadio = document.getElementById('savings');
+    const currentRadio = document.getElementById('current');
+    const savingsCard = document.getElementById('savings-card');
+    const currentCard = document.getElementById('current-card');
+    const depositInput = document.getElementById('initial_deposit');
+    
+    // Highlight selected card
+    function updateCardStyles() {
+        if (savingsRadio.checked) {
+            savingsCard.style.backgroundColor = '#d1fae5';
+            savingsCard.style.borderColor = '#10b981';
+            currentCard.style.backgroundColor = '';
+            currentCard.style.borderColor = '';
+        } else if (currentRadio.checked) {
+            currentCard.style.backgroundColor = '#dbeafe';
+            currentCard.style.borderColor = '#2563eb';
+            savingsCard.style.backgroundColor = '';
+            savingsCard.style.borderColor = '';
+        }
+    }
+    
+    // Click card to select
+    savingsCard.addEventListener('click', function() {
+        savingsRadio.checked = true;
+        updateCardStyles();
+        depositInput.placeholder = 'Minimum: ₹500';
+    });
+    
+    currentCard.addEventListener('click', function() {
+        currentRadio.checked = true;
+        updateCardStyles();
+        depositInput.placeholder = 'Minimum: ₹1000';
+    });
+    
+    // Update on radio change
+    savingsRadio.addEventListener('change', updateCardStyles);
+    currentRadio.addEventListener('change', updateCardStyles);
+    
+    // Validate deposit amount based on account type
+    depositInput.addEventListener('input', function() {
+        const amount = parseFloat(this.value);
+        
+        if (savingsRadio.checked && amount < 500) {
+            this.setCustomValidity('Minimum deposit for Savings Account is ₹500');
+        } else if (currentRadio.checked && amount < 1000) {
+            this.setCustomValidity('Minimum deposit for Current Account is ₹1000');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+});
+</script>
+
+<style>
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .form-check-input:checked ~ .form-check-label {
+        font-weight: 600;
+    }
+</style>
+{% endblock %}

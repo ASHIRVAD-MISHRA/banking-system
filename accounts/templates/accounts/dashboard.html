@@ -1,0 +1,291 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Dashboard - Banking System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-white fw-bold mb-2">
+            <i class="fas fa-tachometer-alt"></i> Welcome back, {{ user.first_name }}!
+        </h1>
+        <p class="text-white-50">Manage your accounts and transactions</p>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="icon-box primary mx-auto">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h6 class="text-muted mb-2">Total Balance</h6>
+                <h2 class="fw-bold text-primary">₹{{ total_balance|floatformat:2 }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="icon-box success mx-auto">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h6 class="text-muted mb-2">Total Accounts</h6>
+                <h2 class="fw-bold text-success">{{ total_accounts }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="icon-box warning mx-auto">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h6 class="text-muted mb-2">Recent Transactions</h6>
+                <h2 class="fw-bold text-warning">{{ recent_transactions|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bolt"></i> Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="{% url 'create_account' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-plus-circle me-2"></i>Create Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Savings Accounts -->
+{% if savings_accounts %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-piggy-bank"></i> Savings Accounts
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Account Number</th>
+                                <th>Balance</th>
+                                <th>Created Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in savings_accounts %}
+                            <tr>
+                                <td>
+                                    <strong>{{ account.account_number }}</strong>
+                                    <br>
+                                    <small class="text-muted">Savings Account</small>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-success">₹{{ account.balance|floatformat:2 }}</span>
+                                </td>
+                                <td>{{ account.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if account.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'account_detail' account.account_number %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'deposit_money' account.account_number %}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                        <a href="{% url 'withdraw_money' account.account_number %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-minus"></i>
+                                        </a>
+                                        <a href="{% url 'transfer_money' account.account_number %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Current Accounts -->
+{% if current_accounts %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-briefcase"></i> Current Accounts
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Account Number</th>
+                                <th>Balance</th>
+                                <th>Created Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in current_accounts %}
+                            <tr>
+                                <td>
+                                    <strong>{{ account.account_number }}</strong>
+                                    <br>
+                                    <small class="text-muted">Current Account</small>
+                                </td>
+                                <td>
+                                    <span class="fw-bold {% if account.balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        ₹{{ account.balance|floatformat:2 }}
+                                    </span>
+                                </td>
+                                <td>{{ account.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if account.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'account_detail' account.account_number %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'deposit_money' account.account_number %}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                        <a href="{% url 'withdraw_money' account.account_number %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-minus"></i>
+                                        </a>
+                                        <a href="{% url 'transfer_money' account.account_number %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- No Accounts Message -->
+{% if not savings_accounts and not current_accounts %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="icon-box warning mx-auto">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h4 class="mb-3">No Bank Accounts Found</h4>
+                <p class="text-muted mb-4">You haven't created any bank accounts yet. Get started by creating your first account!</p>
+                <a href="{% url 'create_account' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>Create Your First Account
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Transactions -->
+{% if recent_transactions %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-history"></i> Recent Transactions
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Balance After</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in recent_transactions %}
+                            <tr>
+                                <td><code>{{ transaction.transaction_id }}</code></td>
+                                <td>
+                                    {% if transaction.transaction_type == 'DEPOSIT' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-arrow-down"></i> Deposit
+                                        </span>
+                                    {% elif transaction.transaction_type == 'WITHDRAWAL' %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-arrow-up"></i> Withdrawal
+                                        </span>
+                                    {% elif transaction.transaction_type == 'TRANSFER_IN' %}
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-arrow-right"></i> Transfer In
+                                        </span>
+                                    {% elif transaction.transaction_type == 'TRANSFER_OUT' %}
+                                        <span class="badge bg-primary">
+                                            <i class="fas fa-arrow-left"></i> Transfer Out
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ transaction.transaction_type }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="fw-bold {% if transaction.transaction_type == 'DEPOSIT' or transaction.transaction_type == 'TRANSFER_IN' %}text-success{% else %}text-danger{% endif %}">
+                                        {% if transaction.transaction_type == 'DEPOSIT' or transaction.transaction_type == 'TRANSFER_IN' %}+{% else %}-{% endif %}
+                                        ₹{{ transaction.amount|floatformat:2 }}
+                                    </span>
+                                </td>
+                                <td>₹{{ transaction.balance_after|floatformat:2 }}</td>
+                                <td>{{ transaction.timestamp|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

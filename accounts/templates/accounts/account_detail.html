@@ -1,0 +1,196 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Account Details - SecureBank{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-light mb-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+        <h1 class="text-white fw-bold mb-2">
+            <i class="fas fa-university"></i> Account Details
+        </h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Account Information Card -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>Account Information
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="icon-box {% if account.account_type == 'SAVINGS' %}success{% else %}primary{% endif %} mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                        <i class="fas fa-{% if account.account_type == 'SAVINGS' %}piggy-bank{% else %}briefcase{% endif %}"></i>
+                    </div>
+                    <h4 class="fw-bold">{{ account.get_account_type_display }}</h4>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="text-muted small">Account Number</label>
+                    <div class="d-flex align-items-center">
+                        <h5 class="mb-0 fw-bold">{{ account.account_number }}</h5>
+                        <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyAccountNumber()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="text-muted small">Account Holder</label>
+                    <p class="mb-0 fw-bold">{{ account.customer.get_full_name }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="text-muted small">Created On</label>
+                    <p class="mb-0">{{ account.created_at|date:"F d, Y" }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="text-muted small">Status</label>
+                    <div>
+                        {% if account.is_active %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle"></i> Active
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                <i class="fas fa-times-circle"></i> Inactive
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="mb-3">
+                    <label class="text-muted small">Minimum Balance Required</label>
+                    <p class="mb-0 fw-bold text-warning">₹{{ min_balance }}</p>
+                </div>
+                
+                {% if account.account_type == 'SAVINGS' %}
+                <div class="mb-3">
+                    <label class="text-muted small">Interest Rate</label>
+                    <p class="mb-0 fw-bold text-success">4% per annum</p>
+                </div>
+                {% else %}
+                <div class="mb-3">
+                    <label class="text-muted small">Overdraft Limit</label>
+                    <p class="mb-0 fw-bold text-primary">₹10,000</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Balance and Quick Actions -->
+    <div class="col-lg-8">
+        <!-- Current Balance -->
+        <div class="card mb-4">
+            <div class="card-body text-center py-4">
+                <h6 class="text-muted mb-2">Current Balance</h6>
+                <h1 class="display-3 fw-bold {% if account.balance >= 0 %}text-success{% else %}text-danger{% endif %} mb-4">
+                    ₹{{ account.balance|floatformat:2 }}
+                </h1>
+                
+                <!-- Quick Action Buttons -->
+                <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+                    <a href="{% url 'deposit_money' account.account_number %}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>Deposit
+                    </a>
+                    <a href="{% url 'withdraw_money' account.account_number %}" class="btn btn-warning btn-lg">
+                        <i class="fas fa-minus-circle me-2"></i>Withdraw
+                    </a>
+                    <a href="{% url 'transfer_money' account.account_number %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-exchange-alt me-2"></i>Transfer
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Transactions -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-history me-2"></i>Recent Transactions</span>
+                <a href="{% url 'transaction_history' account.account_number %}" class="btn btn-sm btn-outline-primary">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if transactions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Balance After</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                            <tr>
+                                <td>
+                                    <div>{{ transaction.timestamp|date:"M d, Y" }}</div>
+                                    <small class="text-muted">{{ transaction.timestamp|time:"H:i" }}</small>
+                                </td>
+                                <td>
+                                    {% if transaction.transaction_type == 'DEPOSIT' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-arrow-down"></i> Deposit
+                                        </span>
+                                    {% elif transaction.transaction_type == 'WITHDRAWAL' %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-arrow-up"></i> Withdrawal
+                                        </span>
+                                    {% elif transaction.transaction_type == 'TRANSFER_IN' %}
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-arrow-right"></i> Transfer In
+                                        </span>
+                                    {% elif transaction.transaction_type == 'TRANSFER_OUT' %}
+                                        <span class="badge bg-primary">
+                                            <i class="fas fa-arrow-left"></i> Transfer Out
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ transaction.get_transaction_type_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="fw-bold {% if transaction.transaction_type == 'DEPOSIT' or transaction.transaction_type == 'TRANSFER_IN' %}text-success{% else %}text-danger{% endif %}">
+                                        {% if transaction.transaction_type == 'DEPOSIT' or transaction.transaction_type == 'TRANSFER_IN' %}+{% else %}-{% endif %}
+                                        ₹{{ transaction.amount|floatformat:2 }}
+                                    </span>
+                                </td>
+                                <td>₹{{ transaction.balance_after|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="icon-box warning mx-auto mb-3">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h5 class="text-muted">No Transactions Yet</h5>
+                    <p class="text-muted">Start using your account to see transaction history</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyAccountNumber() {
+    const accountNumber = "{{ account.account_number }}";
+    navigator.clipboard.writeText(accountNumber).then(function() {
+        alert('Account number copied to clipboard!');
+    });
+}
+</script>
+{% endblock %}

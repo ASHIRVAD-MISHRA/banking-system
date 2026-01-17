@@ -1,0 +1,103 @@
+<!-- DEPOSIT PAGE: accounts/templates/accounts/deposit.html -->
+{% extends 'accounts/base.html' %}
+
+{% block title %}Deposit Money - SecureBank{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'account_detail' account.account_number %}" class="btn btn-outline-light mb-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Account
+        </a>
+        <h1 class="text-white fw-bold mb-2">
+            <i class="fas fa-plus-circle"></i> Deposit Money
+        </h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <!-- Account Info Card -->
+        <div class="card mb-4 border-success" style="border-width: 3px;">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Depositing to</h6>
+                <h4 class="fw-bold mb-3">{{ account.get_account_type_display }}</h4>
+                <h3 class="fw-bold text-success mb-2">{{ account.account_number }}</h3>
+                <p class="mb-0 text-muted">Current Balance: <strong>₹{{ account.balance|floatformat:2 }}</strong></p>
+            </div>
+        </div>
+        
+        <!-- Deposit Form -->
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <i class="fas fa-money-bill-wave me-2"></i>Deposit Form
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="amount" class="form-label fw-bold">Amount to Deposit</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-success text-white">
+                                <i class="fas fa-rupee-sign"></i>
+                            </span>
+                            {{ form.amount }}
+                        </div>
+                        {% if form.amount.errors %}
+                            <div class="text-danger small mt-2">{{ form.amount.errors }}</div>
+                        {% endif %}
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Maximum single deposit: ₹10,00,000
+                        </small>
+                    </div>
+                    
+                    <!-- Summary -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">Transaction Summary</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Current Balance:</span>
+                                <strong>₹{{ account.balance|floatformat:2 }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Deposit Amount:</span>
+                                <strong class="text-success">+₹<span id="deposit-amount">0.00</span></strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">New Balance:</span>
+                                <strong class="text-success fs-5">₹<span id="new-balance">{{ account.balance|floatformat:2 }}</span></strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'account_detail' account.account_number %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>Deposit Money
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('id_amount');
+    const currentBalance = {{ account.balance }};
+    
+    amountInput.addEventListener('input', function() {
+        const amount = parseFloat(this.value) || 0;
+        document.getElementById('deposit-amount').textContent = amount.toFixed(2);
+        document.getElementById('new-balance').textContent = (currentBalance + amount).toFixed(2);
+    });
+});
+</script>
+{% endblock %}
+

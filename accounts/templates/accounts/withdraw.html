@@ -1,0 +1,149 @@
+
+<!-- WITHDRAW PAGE: accounts/templates/accounts/withdraw.html -->
+{% extends 'accounts/base.html' %}
+
+{% block title %}Withdraw Money - SecureBank{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'account_detail' account.account_number %}" class="btn btn-outline-light mb-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Account
+        </a>
+        <h1 class="text-white fw-bold mb-2">
+            <i class="fas fa-minus-circle"></i> Withdraw Money
+        </h1>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <!-- Account Info Card -->
+        <div class="card mb-4 border-warning" style="border-width: 3px;">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Withdrawing from</h6>
+                <h4 class="fw-bold mb-3">{{ account.get_account_type_display }}</h4>
+                <h3 class="fw-bold text-warning mb-2">{{ account.account_number }}</h3>
+                <p class="mb-0 text-muted">Current Balance: <strong>₹{{ account.balance|floatformat:2 }}</strong></p>
+            </div>
+        </div>
+        
+        <!-- Important Info -->
+        <div class="alert alert-warning">
+            <h6 class="alert-heading">
+                <i class="fas fa-exclamation-triangle me-2"></i>Withdrawal Limits
+            </h6>
+            <ul class="mb-0 small">
+                <li>Minimum balance must be maintained: <strong>₹{{ min_balance }}</strong></li>
+                {% if account.account_type == 'SAVINGS' %}
+                <li>Daily withdrawal limit: <strong>₹50,000</strong></li>
+                {% else %}
+                <li>Overdraft allowed up to: <strong>₹10,000</strong></li>
+                <li>Transaction fee: <strong>₹10 per withdrawal</strong></li>
+                {% endif %}
+            </ul>
+        </div>
+        
+        <!-- Withdraw Form -->
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <i class="fas fa-money-bill-wave me-2"></i>Withdrawal Form
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="amount" class="form-label fw-bold">Amount to Withdraw</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-warning text-white">
+                                <i class="fas fa-rupee-sign"></i>
+                            </span>
+                            {{ form.amount }}
+                        </div>
+                        {% if form.amount.errors %}
+                            <div class="text-danger small mt-2">{{ form.amount.errors }}</div>
+                        {% endif %}
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Available to withdraw: ₹<span id="available-amount"></span>
+                        </small>
+                    </div>
+                    
+                    <!-- Summary -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">Transaction Summary</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Current Balance:</span>
+                                <strong>₹{{ account.balance|floatformat:2 }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Withdrawal Amount:</span>
+                                <strong class="text-danger">-₹<span id="withdraw-amount">0.00</span></strong>
+                            </div>
+                            {% if account.account_type == 'CURRENT' %}
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Transaction Fee:</span>
+                                <strong class="text-danger">-₹10.00</strong>
+                            </div>
+                            {% endif %}
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">New Balance:</span>
+                                <strong class="fs-5" id="new-balance-text">₹<span id="new-balance">{{ account.balance|floatformat:2 }}</span></strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'account_detail' account.account_number %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>Withdraw Money
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('id_amount');
+    const currentBalance = {{ account.balance }};
+    const minBalance = {{ min_balance }};
+    const isCurrent = "{{ account.account_type }}" === "CURRENT";
+    const overdraftLimit = 10000;
+    
+    // Calculate available amount
+    let availableAmount;
+    if (isCurrent) {
+        availableAmount = currentBalance + overdraftLimit - minBalance;
+    } else {
+        availableAmount = currentBalance - minBalance;
+    }
+    document.getElementById('available-amount').textContent = availableAmount.toFixed(2);
+    
+    amountInput.addEventListener('input', function() {
+        const amount = parseFloat(this.value) || 0;
+        const fee = isCurrent ? 10 : 0;
+        const newBalance = currentBalance - amount - fee;
+        
+        document.getElementById('withdraw-amount').textContent = amount.toFixed(2);
+        document.getElementById('new-balance').textContent = newBalance.toFixed(2);
+        
+        const balanceText = document.getElementById('new-balance-text');
+        if (newBalance < 0) {
+            balanceText.className = 'fs-5 text-danger';
+        } else {
+            balanceText.className = 'fs-5 text-success';
+        }
+    });
+});
+</script>
+{% endblock %}
+
+
