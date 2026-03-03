@@ -92,7 +92,7 @@ SecureBank is a complete online banking platform that allows users to register, 
 ### Transactions
 ![Transactions](screenshots/transactions.png)
 
-### Transaction History
+### Terms and Conditions
 ![History](screenshots/history.png)
 
 </details>
